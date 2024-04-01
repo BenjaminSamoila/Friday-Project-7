@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import sqlite3
+import re
 
 # Connect to the SQLite database
 conn = sqlite3.connect('database.spl.db')
@@ -11,10 +12,17 @@ c.execute('''CREATE TABLE IF NOT EXISTS users
              (id INTEGER PRIMARY KEY, email TEXT, password TEXT)''')
 conn.commit()
 
+def validate_email(email):
+    # Simple regex for checking if the email has @ and ends with .com or .edu
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email) is not None
+
 def signup():
     def add_user():
         email = email_entry.get()
         password = password_entry.get()
+        if not validate_email(email):
+            messagebox.showerror("Error", "Invalid email format")
+            return
         c.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, password))
         conn.commit()
         messagebox.showinfo("Success", "Account created successfully")
